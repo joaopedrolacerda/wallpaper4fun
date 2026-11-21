@@ -45,7 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         .windowResizability(.contentSize)
 
-        MenuBarExtra("wallpaper4fun", systemImage: "sparkles.tv") {
+        MenuBarExtra("wallpaper4fun", systemImage: "cup.and.heat.waves") {
             MenuBarContent(manager: appDelegate.manager)
         }
     }

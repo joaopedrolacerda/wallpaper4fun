@@ -50,6 +50,15 @@ Como funciona:
 - **Shader**: `TimelineView` limitado a 30 fps (`ShaderWallpaperView.frameInterval`).
 - **Fechar o painel**: o app não encerra. `ContentView` chama `DockPolicy.apply` no `onAppear`/`onDisappear`.
 
+## Ícone
+
+Café numa mesa com paisagem noturna (lua, montanhas e uma aurora suave).
+
+- Fontes: `Design/Icon/icon-full.svg` (64 px para cima) e `Design/Icon/icon-small.svg` (versão simplificada, 32 px para baixo, porque os detalhes somem). As mesmas fontes estão no repo Windows, em `design/icon/`. Mantenha as duas cópias iguais.
+- `wallpaper4fun/Assets.xcassets/AppIcon.appiconset` é gerado, com a margem transparente do grid da Apple (arte em 824 de 1024 px). O target usa `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`.
+- Para gerar de novo depois de mudar os SVGs, use o gerador do repo Windows: `../wallpaper4fun-windows/tools/IconKit/generate.sh "$PWD"`.
+- O ícone da barra de menus é o SF Symbol `cup.and.heat.waves` (monocromático, como a Apple pede para a barra de menus).
+
 ## Como adicionar um shader
 
 1. Em `Shaders.metal`, crie `[[stitchable]] half4 nome(float2 position, half4 color, float2 size, float time)`.
