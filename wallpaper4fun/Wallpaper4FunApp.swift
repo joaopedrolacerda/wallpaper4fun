@@ -11,6 +11,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         manager = WallpaperManager(
             store: SettingsStore(defaults: .standard),
             library: VideoLibrary(folder: VideoLibrary.appFolder),
+            bundledVideos: BundleVideoLocator(bundle: .main),
             display: presenter
         )
         super.init()

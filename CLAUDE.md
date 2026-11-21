@@ -30,6 +30,7 @@ A lógica fica em tipos sem AppKit, testados. O AppKit fica numa camada fina que
 | `WallpaperSource.swift` | Protocolo `WallpaperSource` (um tipo de wallpaper: título, wallpaper e controles do painel) e `WallpaperSourceRegistry` (único ponto de registro). | `WallpaperSourceRegistryTests` |
 | `ShaderSource.swift` | `ShaderStyle`, `ShaderCatalog` (lista de shaders), `ShaderSource`, `ShaderWallpaperView` e o seletor de shader. | `ShaderCatalogTests` |
 | `VideoSource.swift` | `VideoSource`, `VideoWallpaperView`/`LoopingPlayerView` e a linha de escolher vídeo. | — (views/AVFoundation) |
+| `VideoCatalog.swift` | `BundledVideo`, `VideoCatalog` (vídeos padrão), `BundledVideoLocating` e `BundleVideoLocator`. | `VideoCatalogTests` |
 | `VideoLibrary.swift` | Copia vídeos para a pasta do app, substitui o anterior, encontra o vídeo salvo. | `VideoLibraryTests` |
 | `WallpaperManager.swift` | Estado `@Observable` e regras: salvar configurações, mostrar/esconder, pausa, importar vídeo. Fala com a tela pelo protocolo `WallpaperDisplay`. | `WallpaperManagerTests` |
 | `ShaderClock.swift` | Tempo acumulado da animação. | `ShaderClockTests` |
@@ -58,6 +59,22 @@ Café numa mesa com paisagem noturna (lua, montanhas e uma aurora suave).
 - `wallpaper4fun/Assets.xcassets/AppIcon.appiconset` é gerado, com a margem transparente do grid da Apple (arte em 824 de 1024 px). O target usa `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`.
 - Para gerar de novo depois de mudar os SVGs, use o gerador do repo Windows: `../wallpaper4fun-windows/tools/IconKit/generate.sh "$PWD"`.
 - O ícone da barra de menus é o SF Symbol `cup.and.heat.waves` (monocromático, como a Apple pede para a barra de menus).
+
+## Vídeos padrão
+
+Cinco vídeos vêm dentro do app e aparecem como miniaturas no painel (tipo "Vídeo"): Gato no pôr do sol (padrão), Moto na estrada, Appa na lua, Planeta vermelho e Fractal violeta. O usuário ainda pode importar um vídeo próprio; o importado fica guardado e dá para voltar a ele.
+
+- `VideoCatalog` lista os vídeos (id + título). `settings.bundledVideoID` guarda o escolhido; `nil`/`null` = usar o importado.
+- Origem: bancos de vídeo gratuitos (nomes originais no estilo Pexels/Pixabay), escolhidos pelo usuário. **O "Appa na lua" mostra um personagem de Avatar (direitos autorais)**: o usuário escolheu incluir mesmo assim. Confira as licenças antes de distribuir o app publicamente.
+- O Fractal veio com 345 MB e foi recomprimido para HEVC 1080p a 3 Mbps (45 MB). Mantenha cada arquivo abaixo de 100 MB (limite do GitHub); comprima antes de adicionar.
+- Arquivos em `wallpaper4fun/Videos/<id>.mp4` e `<id>.jpg` (miniatura). Entram no bundle sozinhos (grupo sincronizado). `BundleVideoLocator` acha os arquivos; nos testes, `FakeVideoLocator`.
+- `VideoCatalogTests.everyVideoIsBundled` falha se faltar arquivo de algum vídeo do catálogo dentro do app.
+
+### Como adicionar um vídeo padrão
+
+1. Coloque `<id>.mp4` e uma miniatura `<id>.jpg` (~480 px de largura) em `wallpaper4fun/Videos/`.
+2. Adicione `BundledVideo(id: "<id>", title: "Título")` em `VideoCatalog.all`.
+3. Faça o mesmo na versão Windows.
 
 ## Como adicionar um shader
 

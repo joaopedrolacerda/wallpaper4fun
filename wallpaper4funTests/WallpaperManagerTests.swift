@@ -17,17 +17,30 @@ final class FakeDisplay: WallpaperDisplay {
     }
 }
 
+/// Dublê dos vídeos que vêm com o app: cada vídeo é um arquivo numa pasta temporária.
+struct FakeVideoLocator: BundledVideoLocating {
+    let folder: URL
+
+    func videoURL(for video: BundledVideo) -> URL? {
+        let url = folder.appending(path: "\(video.id).mp4")
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+
+    func thumbnailURL(for video: BundledVideo) -> URL? { nil }
+}
+
 struct WallpaperManagerTests {
     private let defaults = TemporaryDefaults()
     private let videos = TemporaryFolder()
     private let source = TemporaryFolder()
     private let display = FakeDisplay()
+    private let bundled = TemporaryFolder()
 
     private var store: SettingsStore { SettingsStore(defaults: defaults.defaults) }
     private var library: VideoLibrary { VideoLibrary(folder: videos.url) }
 
     private func makeManager() -> WallpaperManager {
-        WallpaperManager(store: store, library: library, display: display)
+        WallpaperManager(store: store, library: library, bundledVideos: FakeVideoLocator(folder: bundled.url), display: display)
     }
 
     // MARK: Configurações
@@ -165,8 +178,72 @@ struct WallpaperManagerTests {
     func missingSavedVideo() {
         var saved = WallpaperSettings.default
         saved.videoFileName = "sumiu.mov"
+        saved.bundledVideoID = nil
         store.save(saved)
 
         #expect(makeManager().videoURL == nil)
+    }
+
+    // MARK: Vídeos que vêm com o app
+
+    @Test("por padrão, o vídeo escolhido é o padrão do catálogo")
+    func defaultsToBundledVideo() throws {
+        let expected = try bundled.makeFile(named: "\(WallpaperSettings.default.bundledVideoID!).mp4")
+        #expect(makeManager().videoURL == expected)
+    }
+
+    @Test("escolher um vídeo do app passa a usá-lo como wallpaper")
+    func selectBundledVideo() throws {
+        let appa = try bundled.makeFile(named: "appa.mp4")
+        let manager = makeManager()
+
+        manager.selectBundledVideo(id: "appa")
+
+        #expect(manager.videoURL == appa)
+        #expect(manager.settings.bundledVideoID == "appa")
+        #expect(manager.settings.sourceID == VideoSource.id)
+    }
+
+    @Test("importar um vídeo deixa de usar o vídeo do app")
+    func importReplacesBundledChoice() throws {
+        _ = try bundled.makeFile(named: "appa.mp4")
+        let manager = makeManager()
+        manager.selectBundledVideo(id: "appa")
+
+        manager.importVideo(from: try source.makeFile(named: "praia.mov"))
+
+        #expect(manager.settings.bundledVideoID == nil)
+        #expect(manager.videoURL == videos.url.appending(path: "praia.mov"))
+    }
+
+    @Test("voltar para um vídeo do app mantém o importado guardado")
+    func bundledChoiceKeepsImportedFile() throws {
+        _ = try bundled.makeFile(named: "appa.mp4")
+        let manager = makeManager()
+        manager.importVideo(from: try source.makeFile(named: "praia.mov"))
+
+        manager.selectBundledVideo(id: "appa")
+
+        #expect(manager.importedVideoURL == videos.url.appending(path: "praia.mov"))
+    }
+
+    @Test("se o vídeo do app não existe, fica sem vídeo")
+    func missingBundledFile() {
+        let manager = makeManager()
+        manager.selectBundledVideo(id: "appa")
+        #expect(manager.videoURL == nil)
+    }
+
+    @Test("dá pra voltar para o vídeo importado")
+    func selectImportedVideoAgain() throws {
+        _ = try bundled.makeFile(named: "appa.mp4")
+        let manager = makeManager()
+        manager.importVideo(from: try source.makeFile(named: "praia.mov"))
+        manager.selectBundledVideo(id: "appa")
+
+        manager.selectImportedVideo()
+
+        #expect(manager.settings.bundledVideoID == nil)
+        #expect(manager.videoURL == videos.url.appending(path: "praia.mov"))
     }
 }

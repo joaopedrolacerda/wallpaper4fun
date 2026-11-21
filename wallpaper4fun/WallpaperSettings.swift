@@ -8,7 +8,10 @@ nonisolated struct WallpaperSettings: Codable, Equatable {
     var isPaused = false
     var isEnabled = true
     var hideDockWhenClosed = true
+    /// Vídeo importado pelo usuário (nome do arquivo na `VideoLibrary`).
     var videoFileName: String?
+    /// Vídeo do app escolhido (`VideoCatalog`). `nil` = usar o vídeo importado.
+    var bundledVideoID: String? = VideoCatalog.defaultID
 
     static let `default` = WallpaperSettings()
 }

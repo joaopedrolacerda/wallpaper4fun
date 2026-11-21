@@ -113,6 +113,7 @@ private final class SilentDisplay: WallpaperDisplay {
     ContentView(manager: WallpaperManager(
         store: SettingsStore(defaults: UserDefaults(suiteName: "preview")!),
         library: VideoLibrary(folder: .temporaryDirectory),
+        bundledVideos: BundleVideoLocator(bundle: .main),
         display: SilentDisplay()
     ))
 }
