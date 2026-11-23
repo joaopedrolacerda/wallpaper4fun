@@ -15,7 +15,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project wal
 
 Troque `test` por `build` para só compilar.
 
-- Os shaders (`Shaders.metal`) precisam do **Metal Toolchain**. Sem ele o build falha com "missing Metal Toolchain". Para instalar: `xcodebuild -downloadComponent MetalToolchain` (download grande, peça confirmação ao usuário antes). Enquanto não estiver instalado, dá para rodar os testes tirando o `Shaders.metal` da pasta temporariamente (e devolvendo depois).
+- Os shaders (`Shaders.metal`) precisam do **Metal Toolchain** (já instalado nesta máquina, versão 27B47). Sem ele o build falha com "missing Metal Toolchain". Para instalar em outra máquina: `xcodebuild -downloadComponent MetalToolchain` (download grande, peça confirmação ao usuário antes).
 - Testes ficam em `wallpaper4funTests/` (Swift Testing, hospedados no app). O scheme compartilhado `wallpaper4fun` já roda esse target.
 - Quando o app roda como host dos testes, o `AppDelegate` não abre as janelas do desktop.
 - O projeto usa grupos sincronizados com a pasta (`fileSystemSynchronizedGroups`): arquivos novos em `wallpaper4fun/` ou `wallpaper4funTests/` entram no target sozinhos, sem editar o `project.pbxproj`.
@@ -50,6 +50,15 @@ Como funciona:
 - **Vídeo**: o arquivo escolhido é **copiado** para `Application Support/Wallpapers` dentro do container do sandbox, assim continua acessível depois de reiniciar. O player é mudo e não impede a tela de dormir.
 - **Shader**: `TimelineView` limitado a 30 fps (`ShaderWallpaperView.frameInterval`).
 - **Fechar o painel**: o app não encerra. `ContentView` chama `DockPolicy.apply` no `onAppear`/`onDisappear`.
+
+## Distribuição (.dmg)
+
+`./tools/make-dmg.sh` compila em Release e gera `dist/wallpaper4fun-<versão>.dmg` (o app e um atalho "Aplicativos" para arrastar). A pasta `dist/` fica fora do git.
+
+- Bundle ID: `io.github.joaopedrolacerda.wallpaper4fun`. Versão em `MARKETING_VERSION` (hoje 1.0).
+- Só roda no **macOS 27** (`MACOSX_DEPLOYMENT_TARGET = 27.0`) e só em Apple Silicon (arm64).
+- **Sem conta Apple Developer**: assinatura local (ad-hoc), sem notarização. Na primeira vez o macOS bloqueia; libere em Ajustes do Sistema → Privacidade e Segurança → "Abrir assim mesmo". Para distribuir sem esse aviso: Developer ID (US$ 99/ano) e `notarytool`.
+- O app roda em sandbox: configurações e vídeo importado ficam em `~/Library/Containers/io.github.joaopedrolacerda.wallpaper4fun/`.
 
 ## Ícone
 
